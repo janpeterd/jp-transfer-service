@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "spring.app.jwtSecret",
+      "type": "java.lang.String",
+      "description": "JWT secret key."
+    }
+  ]
+}
