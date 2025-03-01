@@ -5,6 +5,7 @@ import com.janpeterdhalle.transfer.models.SharedLink;
 import com.janpeterdhalle.transfer.repositories.SharedLinkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,9 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class FileUploadService {
     private final SharedLinkRepository sharedLinkRepository;
+
+    @Value("${apiurl}")
+    private String apiUrl;
 
     public SharedLink handleFileUpload(
             MultipartFile file,
@@ -102,7 +106,7 @@ public class FileUploadService {
             link.setFileSize(Files.exists(finalZipPath) ? Files.size(finalZipPath) : file.getSize());
             link.setExpiresAt(expiresAt);
             link.setUrl(finalZipPath.toUri().toString());
-            link.setDownloadLink("http://jp-zen:8080/download?email=" + encodedEmail + "&downloadName=" + uploadName);
+            link.setDownloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName);
             return sharedLinkRepository.save(link);
         }
 
@@ -111,7 +115,7 @@ public class FileUploadService {
                                           .fileSize(Files.exists(finalZipPath) ? Files.size(finalZipPath) : file.getSize())
                                           .expiresAt(expiresAt)
                                           .url(finalZipPath.toUri().toString())
-                                          .downloadLink("http://jp-zen:8080/download?email=" + encodedEmail + "&downloadName=" + uploadName)
+                                          .downloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName)
                                           .ownerMailBase64(encodedEmail)
                                           .build();
         return sharedLinkRepository.save(sharedLink);
