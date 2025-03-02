@@ -28,6 +28,7 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class FileUploadService {
     private final SharedLinkRepository sharedLinkRepository;
+    private final SchedulingService schedulingService;
 
     @Value("${apiurl}")
     private String apiUrl;
@@ -107,6 +108,9 @@ public class FileUploadService {
             link.setExpiresAt(expiresAt);
             link.setUrl(finalZipPath.toUri().toString());
             link.setDownloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName);
+            if (isLastChunk(chunkIndex, totalChunks)) {
+                schedulingService.scheduleExpiry(existingLink.get());
+            }
             return sharedLinkRepository.save(link);
         }
 
@@ -118,6 +122,9 @@ public class FileUploadService {
                                           .downloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName)
                                           .ownerMailBase64(encodedEmail)
                                           .build();
+        if (isLastChunk(chunkIndex, totalChunks)) {
+            schedulingService.scheduleExpiry(sharedLink);
+        }
         return sharedLinkRepository.save(sharedLink);
     }
 

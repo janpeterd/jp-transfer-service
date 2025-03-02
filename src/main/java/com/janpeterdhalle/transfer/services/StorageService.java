@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +15,7 @@ public class StorageService {
 
     // Get the amout of free storage from filesystem:
     public StorageInfo getStorageInfo() {
-        File file = new File(".");
+        File file = new File(Paths.get("uploads/").toString());
         return StorageInfo.builder()
                           .availableSpace(file.getUsableSpace())
                           .totalSpace(file.getTotalSpace())

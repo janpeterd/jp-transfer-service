@@ -11,6 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
@@ -27,12 +28,9 @@ public class UserEventHandler {
         String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
         List<SharedLink> sharedLinks = sharedLinkRepository.findSharedLinksByOwnerMailBase64(encodedEmail);
 
-        log.info("Deleting all data associated to user, before deleting user");
-        for (SharedLink sharedLink : sharedLinks) {
-            // Delete the associated folder
-            Utils.deleteDirectory(new File(Paths.get("uploads/" + sharedLink.getOwnerMailBase64() + "/" + sharedLink.getFileName())
-                                                .toString()));
-            log.info("Deleted shared link data path: " + sharedLink.getOwnerMailBase64() + "/" + sharedLink.getFileName());
-        }
+        Path userDataDir = Paths.get("uploads/" + encodedEmail);
+        log.info("Deleting all data associated to user {}, before deleting user", user.getEmail());
+        Utils.deleteDirectory(new File(userDataDir.toString()));
+        log.info("Deleted all data associated to user");
     }
 }
