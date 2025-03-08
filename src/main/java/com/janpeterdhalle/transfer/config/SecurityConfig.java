@@ -37,48 +37,48 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable)
-                   .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                   .authorizeHttpRequests(
-                           (authorize) ->
-                                   authorize
-                                           .requestMatchers(HttpMethod.GET, "/")
-                                           .permitAll()
-                                           .requestMatchers(HttpMethod.GET, "/explorer/**")
-                                           .permitAll()
-                                           .requestMatchers(HttpMethod.GET, "/download")
-                                           .permitAll()
-                                           .requestMatchers("/auth/**").permitAll()
-                                           .requestMatchers("/login", "/login*", "/logout").permitAll()
-                                           .requestMatchers("/swagger-ui/**").permitAll()
-                                           .requestMatchers("/v3/**").permitAll()
-                                           .requestMatchers("/auth/register").permitAll()
-                                           .anyRequest().authenticated()) // All other requests require authentication
-                   .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                   .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                   .logout(logout -> logout.invalidateHttpSession(true)
-                                           .deleteCookies("JSESSIONID")
-                                           .permitAll())
-                   .userDetailsService(userDetailsService)
-                   .exceptionHandling(
-                           config ->
-                                   config.authenticationEntryPoint(
-                                           ((request, response, authException) -> {
-                                               System.out.println("AUTH EXCEPTION SECURITY CONFIG: " + authException.getMessage());
-                                               response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                                                                  "Unauthorized");
-                                           })))
-                   .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                   .build();
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(
+                        (authorize) ->
+                                authorize
+                                        .requestMatchers(HttpMethod.GET, "/")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/explorer/**")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/download")
+                                        .permitAll()
+                                        .requestMatchers("/auth/**").permitAll()
+                                        .requestMatchers("/login", "/login*", "/logout").permitAll()
+                                        .requestMatchers("/swagger-ui/**").permitAll()
+                                        .requestMatchers("/v3/**").permitAll()
+                                        .requestMatchers("/auth/register").permitAll()
+                                        .anyRequest().authenticated()) // All other requests require authentication
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .logout(logout -> logout.invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll())
+                .userDetailsService(userDetailsService)
+                .exceptionHandling(
+                        config ->
+                                config.authenticationEntryPoint(
+                                        ((request, response, authException) -> {
+                                            System.out.println("AUTH EXCEPTION SECURITY CONFIG: " + authException.getMessage());
+                                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                                                    "Unauthorized");
+                                        })))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:5173",
-                                                "https://transfer.janpeterdhalle.com")); // Allow
+                "https://transfer.janpeterdhalle.com")); // Allow
         // localhost:3000
         configuration.setAllowedMethods(
-                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allowed methods
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Allowed methods
         configuration.setAllowedHeaders(List.of("*")); // Allow all headers
         configuration.setAllowCredentials(true); // Allow sending credentials (cookies, auth
         // headers)

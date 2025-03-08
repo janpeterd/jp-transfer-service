@@ -21,21 +21,21 @@ public class AuthService {
     public String generateToken(User user) {
         log.info("Generating JWT for email user: {}", user.getEmail());
         String token = JWT.create()
-                          .withSubject("User Details")
-                          .withClaim("email", user.getEmail())
-                          .withClaim("roles", user.getAuthorities().stream().map(Object::toString).toList().get(0))
-                          .withIssuedAt(new Date())
-                          .withIssuer("jp_file_share")
-                          .sign(Algorithm.HMAC256(secret));
+                .withSubject("User Details")
+                .withClaim("email", user.getEmail())
+                .withClaim("roles", user.getAuthorities().stream().map(Object::toString).toList().get(0))
+                .withIssuedAt(new Date())
+                .withIssuer("jp_file_share")
+                .sign(Algorithm.HMAC256(secret));
         System.out.println("GENERATED TOKEN: " + token);
         return token;
     }
 
     public String validateTokenAndRetrieveSubject(String token) throws JWTVerificationException {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
-                                  .withSubject("User Details")
-                                  .withIssuer("jp_file_share")
-                                  .build();
+                .withSubject("User Details")
+                .withIssuer("jp_file_share")
+                .build();
 
         DecodedJWT jwt = verifier.verify(token);
         return jwt.getClaim("email").asString();
