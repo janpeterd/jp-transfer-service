@@ -1,10 +1,7 @@
 package com.janpeterdhalle.transfer.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Data
+@ToString
 public class SharedLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @Controller
@@ -37,17 +38,16 @@ public class FileUploadController {
             System.out.println("CHUNK INDEX: " + chunkIndex);
             System.out.println("UPLOAD NAME: " + uploadName);
             System.out.println("FILE NAME: " + fileName);
-            return ResponseEntity.ok().body(
-                    fileUploadService.handleFileUpload(
-                            file,
-                            email,
-                            chunked,
-                            totalChunks,
-                            chunkIndex,
-                            uploadName,
-                            fileName
-                                                      )
-                                           );
+            Optional<SharedLink> sharedLinkOptional = fileUploadService.handleFileUpload(
+                    file,
+                    email,
+                    chunked,
+                    totalChunks,
+                    chunkIndex,
+                    uploadName,
+                    fileName
+            );
+            return ResponseEntity.ok().body(sharedLinkOptional.orElse(null));
         } catch (IOException e) {
             log.error("IO Exception", e);
             return ResponseEntity.internalServerError().body(null);
