@@ -39,18 +39,18 @@ public class FileUploadService {
     private String apiUrl;
 
     public Optional<SharedLink> handleFileUpload(
-            MultipartFile file,
-            String email,
-            boolean chunked,
-            Integer totalChunks,
-            Integer chunkIndex,
-            String uploadName,
-            String fileName) throws IOException, InterruptedException {
+        MultipartFile file,
+        String email,
+        boolean chunked,
+        Integer totalChunks,
+        Integer chunkIndex,
+        String uploadName,
+        String fileName) throws IOException, InterruptedException {
         log.info("Received file: {} - Chunked: {} - Chunk {}/{}",
-                file.getOriginalFilename(),
-                chunked,
-                chunkIndex,
-                totalChunks);
+                 file.getOriginalFilename(),
+                 chunked,
+                 chunkIndex,
+                 totalChunks);
         log.info("File name parameter: {}", fileName);
 
         // Base64 encode email
@@ -64,7 +64,8 @@ public class FileUploadService {
         String processingKey = transferId + ":processing";
         String sharedLinkCreatedKey = transferId + ":sharedLinkCreated";
 
-        Optional<SharedLink> sharedLinkOptional = sharedLinkRepository.findOneByFileNameAndOwnerMailBase64(fileName, encodedEmail);
+        Optional<SharedLink> sharedLinkOptional = sharedLinkRepository.findOneByFileNameAndOwnerMailBase64(fileName,
+                                                                                                           encodedEmail);
         // Create or get the SharedLink only for the first chunk or single-chunk uploads
         if (chunkIndex == 1 || totalChunks == 1) {
             // Set a flag in Redis to indicate we're creating a shared link
@@ -95,12 +96,12 @@ public class FileUploadService {
         redisTemplate.expire(receivedChunksKey, REDIS_KEYS_TTL_DAYS, TimeUnit.DAYS);
 
         log.info("Transfer {} progress: {}/{} chunks received",
-                transferId, receivedChunksCount, totalChunks);
+                 transferId, receivedChunksCount, totalChunks);
 
         // Check if all chunks have been received and not already processing
         assert receivedChunksCount != null;
         if (receivedChunksCount.equals(totalChunks.longValue()) &&
-                !Boolean.TRUE.equals(redisTemplate.hasKey(processingKey))) {
+            !Boolean.TRUE.equals(redisTemplate.hasKey(processingKey))) {
 
             // Set processing flag to prevent duplicate processing
             redisTemplate.opsForValue().set(processingKey, true);
@@ -175,7 +176,7 @@ public class FileUploadService {
                 // We have the lock, proceed with get or create logic
                 // First, check for a SINGLE existing link using the findOne method
                 Optional<SharedLink> existingLink = sharedLinkRepository.findSharedLinksByFileNameAndOwnerMailBase64(
-                        uploadName, encodedEmail);
+                    uploadName, encodedEmail);
 
                 // If a link exists, use it
                 if (existingLink.isPresent()) {
@@ -189,12 +190,14 @@ public class FileUploadService {
 
                 // If we need to check for duplicates and clean them up
                 List<SharedLink> existingLinks = sharedLinkRepository.findAllByFileNameAndOwnerMailBase64(
-                        uploadName, encodedEmail);
+                    uploadName, encodedEmail);
 
                 // If links exist, use the first one and clean up any duplicates
                 if (!existingLinks.isEmpty()) {
                     if (existingLinks.size() > 1) {
-                        log.warn("Found multiple SharedLink records for {}/{}. Keeping only one.", encodedEmail, uploadName);
+                        log.warn("Found multiple SharedLink records for {}/{}. Keeping only one.",
+                                 encodedEmail,
+                                 uploadName);
                         SharedLink keepLink = existingLinks.get(0);
 
                         // Delete all but the first one
@@ -223,13 +226,13 @@ public class FileUploadService {
                 // No links exist, create a new one
                 Path path = Paths.get("uploads/" + encodedEmail + "/" + uploadName + "/transfer.zip");
                 SharedLink newLink = SharedLink.builder()
-                        .fileName(uploadName)
-                        .fileSize(0L) // Will be updated once file is fully assembled
-                        .expiresAt(LocalDateTime.now().plusDays(30))
-                        .url(path.toUri().toString())
-                        .downloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName)
-                        .ownerMailBase64(encodedEmail)
-                        .build();
+                                               .fileName(uploadName)
+                                               .fileSize(0L) // Will be updated once file is fully assembled
+                                               .expiresAt(LocalDateTime.now().plusDays(30))
+                                               .url(path.toUri().toString())
+                                               .downloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName)
+                                               .ownerMailBase64(encodedEmail)
+                                               .build();
 
                 return sharedLinkRepository.save(newLink);
             } else {
@@ -251,7 +254,7 @@ public class FileUploadService {
                     try {
                         // Try to find the existing link
                         Optional<SharedLink> existingLink = sharedLinkRepository.findOneByFileNameAndOwnerMailBase64(
-                                uploadName, encodedEmail);
+                            uploadName, encodedEmail);
 
                         if (existingLink.isPresent()) {
                             return existingLink.get();
@@ -266,7 +269,7 @@ public class FileUploadService {
                 // Last resort: try once more with the list method and take the first one
                 try {
                     List<SharedLink> links = sharedLinkRepository.findAllByFileNameAndOwnerMailBase64(
-                            uploadName, encodedEmail);
+                        uploadName, encodedEmail);
                     if (!links.isEmpty()) {
                         return links.get(0);
                     }
@@ -278,13 +281,13 @@ public class FileUploadService {
                 log.warn("Creating SharedLink after lock acquisition failure - potential duplicate");
                 Path path = Paths.get("uploads/" + encodedEmail + "/" + uploadName + "/transfer.zip");
                 SharedLink fallbackLink = SharedLink.builder()
-                        .fileName(uploadName)
-                        .fileSize(0L)
-                        .expiresAt(LocalDateTime.now().plusDays(30))
-                        .url(path.toUri().toString())
-                        .downloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName)
-                        .ownerMailBase64(encodedEmail)
-                        .build();
+                                                    .fileName(uploadName)
+                                                    .fileSize(0L)
+                                                    .expiresAt(LocalDateTime.now().plusDays(30))
+                                                    .url(path.toUri().toString())
+                                                    .downloadLink(apiUrl + "/download?email=" + encodedEmail + "&downloadName=" + uploadName)
+                                                    .ownerMailBase64(encodedEmail)
+                                                    .build();
 
                 try {
                     return sharedLinkRepository.save(fallbackLink);
@@ -292,7 +295,7 @@ public class FileUploadService {
                     log.error("Failed to create fallback SharedLink", e);
                     // One last attempt to get an existing one
                     return sharedLinkRepository.findAllByFileNameAndOwnerMailBase64(
-                            uploadName, encodedEmail).stream().findFirst().orElse(fallbackLink);
+                        uploadName, encodedEmail).stream().findFirst().orElse(fallbackLink);
                 }
             }
         } finally {
@@ -313,8 +316,8 @@ public class FileUploadService {
         try (var files = Files.list(chunksPath)) {
             // Sort by chunk index for proper assembly
             fileChunks = files
-                    .sorted()
-                    .collect(java.util.stream.Collectors.toList());
+                .sorted()
+                .collect(java.util.stream.Collectors.toList());
         }
 
         // Extract the original file by combining chunks
@@ -353,7 +356,7 @@ public class FileUploadService {
         }
         // Remove path information, replace invalid characters
         return new File(fileName).getName()
-                .replaceAll("[\\\\/:*?\"<>|]", "_");
+                                 .replaceAll("[\\\\/:*?\"<>|]", "_");
     }
 
     /**
@@ -363,15 +366,15 @@ public class FileUploadService {
         log.info("Extracting file from {} chunks to {}", chunks.size(), outputPath);
         // log all chunks
         System.out.println("TOTAL SIZE ALL CHUNKS " + chunks.stream()
-                .mapToDouble((chunk) -> (double) new File(chunk.toString()).length() / 1024)
-                .sum());
+                                                            .mapToDouble((chunk) -> (double) new File(chunk.toString()).length() / 1024)
+                                                            .sum());
         // Create output directory if it doesn't exist
         Files.createDirectories(outputPath.getParent());
 
         // Combine all chunks directly
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(outputPath,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING))) {
+                                                                               StandardOpenOption.CREATE,
+                                                                               StandardOpenOption.TRUNCATE_EXISTING))) {
 
             for (Path chunk : chunks) {
                 log.info("Processing chunk: {}", chunk.getFileName());
