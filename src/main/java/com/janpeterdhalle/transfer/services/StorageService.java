@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.janpeterdhalle.transfer.models.StorageInfo;
 import com.janpeterdhalle.transfer.models.User;
 import com.janpeterdhalle.transfer.repositories.FileRepository;
-import com.janpeterdhalle.transfer.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class StorageService {
-    private final UserRepository userRepository;
     private final UserService userService;
     private final FileRepository fileRepository;
 

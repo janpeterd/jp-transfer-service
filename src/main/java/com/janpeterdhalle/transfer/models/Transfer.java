@@ -1,12 +1,12 @@
 package com.janpeterdhalle.transfer.models;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 @Entity
 @Getter
@@ -32,7 +32,7 @@ public class Transfer {
     @ManyToOne
     User user;
 
-    @OneToOne(cascade = {CascadeType.ALL})
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn
     SharedLink sharedLink;
 

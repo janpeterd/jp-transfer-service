@@ -1,12 +1,12 @@
 package com.janpeterdhalle.transfer.models;
 
+import java.util.Set;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
-
-import java.util.Set;
 
 @Entity
 @Getter
@@ -47,7 +47,7 @@ public class FileEntity {
     @Positive
     Integer chunkSize;
 
-    @OneToMany(mappedBy = "file")
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
     Set<Chunk> chunks;
 
     @Builder.Default
