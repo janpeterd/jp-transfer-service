@@ -43,6 +43,7 @@ public class AuthService {
         String encodedPass = userAuthenticationService.encodePassword(user.getPassword());
         user.setPassword(encodedPass);
         user.setRole(Role.USER);
+        user.setActive(true);
         user = userRepository.save(user);
         return userMapper.toDto(user);
     }

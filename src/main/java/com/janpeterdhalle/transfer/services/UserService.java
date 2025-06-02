@@ -51,18 +51,21 @@ public class UserService {
                 user.setEmail("admin@example.com");
                 user.setPassword(passwordEncoder.encode("admin"));
                 user.setRole(Role.ADMIN);
+                user.setActive(true);
                 userRepository.save(user);
             }
         if (userRepository.findByEmail("user@example.com").isEmpty()) {
             User user = new User();
             user.setEmail("user@example.com");
             user.setPassword(passwordEncoder.encode("user"));
+            user.setActive(true);
             user.setRole(Role.USER);
             userRepository.save(user);
         } else {
             User user = new User();
             user.setEmail(adminEmail);
             user.setUsername(adminUsername);
+            user.setActive(true);
             user.setPassword(passwordEncoder.encode(adminPassword));
             user.setRole(Role.ADMIN);
             userRepository.save(user);
