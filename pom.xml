@@ -35,7 +35,16 @@
             <artifactId>mapstruct</artifactId>
             <version>1.6.3</version>
         </dependency>
-
+      <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>11.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+            <version>11.8.2</version>
+        </dependency>
         <!-- lombok dependency should not end up on classpath -->
         <dependency>
             <groupId>org.projectlombok</groupId>
