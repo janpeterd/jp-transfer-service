@@ -45,7 +45,7 @@ public class UserService {
 
     @PostConstruct
     public void init() {
-        if (ArrayUtils.contains(environment.getActiveProfiles(), "dev"))
+        if (ArrayUtils.contains(environment.getActiveProfiles(), "dev")) {
             if (userRepository.findByEmail("admin@example.com").isEmpty()) {
                 User user = new User();
                 user.setEmail("admin@example.com");
@@ -54,13 +54,14 @@ public class UserService {
                 user.setActive(true);
                 userRepository.save(user);
             }
-        if (userRepository.findByEmail("user@example.com").isEmpty()) {
-            User user = new User();
-            user.setEmail("user@example.com");
-            user.setPassword(passwordEncoder.encode("user"));
-            user.setActive(true);
-            user.setRole(Role.USER);
-            userRepository.save(user);
+            if (userRepository.findByEmail("user@example.com").isEmpty()) {
+                User user = new User();
+                user.setEmail("user@example.com");
+                user.setPassword(passwordEncoder.encode("user"));
+                user.setActive(true);
+                user.setRole(Role.USER);
+                userRepository.save(user);
+            }
         } else {
             User user = new User();
             user.setEmail(adminEmail);
