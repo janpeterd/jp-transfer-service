@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -35,6 +36,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final Environment environment;
+    @Value("${admin.username}")
+    private String adminUsername;
+    @Value("${admin.email}")
+    private String adminEmail;
+    @Value("${admin.password}")
+    private String adminPassword;
 
     @PostConstruct
     public void init() {
@@ -51,6 +58,13 @@ public class UserService {
             user.setEmail("user@example.com");
             user.setPassword(passwordEncoder.encode("user"));
             user.setRole(Role.USER);
+            userRepository.save(user);
+        } else {
+            User user = new User();
+            user.setEmail(adminEmail);
+            user.setUsername(adminUsername);
+            user.setPassword(passwordEncoder.encode(adminPassword));
+            user.setRole(Role.ADMIN);
             userRepository.save(user);
         }
     }
