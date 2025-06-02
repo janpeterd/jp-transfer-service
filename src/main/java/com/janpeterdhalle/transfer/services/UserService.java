@@ -3,6 +3,8 @@ package com.janpeterdhalle.transfer.services;
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,16 +34,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final Environment environment;
 
     @PostConstruct
     public void init() {
-        if (userRepository.findByEmail("admin@example.com").isEmpty()) {
-            User user = new User();
-            user.setEmail("admin@example.com");
-            user.setPassword(passwordEncoder.encode("admin"));
-            user.setRole(Role.ADMIN);
-            userRepository.save(user);
-        }
+        if (ArrayUtils.contains(environment.getActiveProfiles(), "dev"))
+            if (userRepository.findByEmail("admin@example.com").isEmpty()) {
+                User user = new User();
+                user.setEmail("admin@example.com");
+                user.setPassword(passwordEncoder.encode("admin"));
+                user.setRole(Role.ADMIN);
+                userRepository.save(user);
+            }
         if (userRepository.findByEmail("user@example.com").isEmpty()) {
             User user = new User();
             user.setEmail("user@example.com");
