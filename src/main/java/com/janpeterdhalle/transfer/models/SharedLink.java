@@ -1,18 +1,21 @@
 package com.janpeterdhalle.transfer.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "shared_links")
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
+@AllArgsConstructor
 @ToString
 public class SharedLink {
     @Id
@@ -20,17 +23,22 @@ public class SharedLink {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Lob
+    @NotBlank
+    @Column(nullable = false, updatable = false)
+    @Builder.Default
+    String uuid = UUID.randomUUID().toString();
+
     @Column(nullable = false)
     private String url;
 
-    @Lob
     @Column(nullable = false)
     private String downloadLink;
 
-    @Lob
-    @Column(nullable = false)
-    private String ownerMailBase64;
+    @ManyToOne
+    User user;
+
+    @OneToOne(mappedBy = "sharedLink")
+    Transfer transfer;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -53,16 +61,4 @@ public class SharedLink {
     @Builder.Default
     private Integer maxDownloads = 100;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Long fileSize = 0L;
-
-    private String fileName;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isProtected = false;
-
-    @Lob
-    private String password;
 }

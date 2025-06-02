@@ -20,6 +20,7 @@ import java.util.concurrent.ScheduledFuture;
 public class SchedulingService {
     private final SharedLinkRepository sharedLinkRepository;
     private final TaskScheduler taskScheduler;
+    private final SharedLinkService sharedLinkService;
 
     @PostConstruct
     public void scheduleExistingEvents() {
@@ -45,7 +46,7 @@ public class SchedulingService {
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
                 log.info("Link Expired, deleting data for link {}", sharedLink.getId());
-                SharedLinkService.deletedAssociatedData(sharedLink);
+                sharedLinkService.deletedAssociatedData(sharedLink);
                 log.info("Deleted data for link {} now deleting link", sharedLink.getId());
                 sharedLinkRepository.delete(sharedLink);
             } catch (Exception e) {
@@ -86,7 +87,7 @@ public class SchedulingService {
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
                 log.info("Starting ride assignment for event {}", sharedLink.getId());
-                SharedLinkService.deletedAssociatedData(sharedLink);
+                sharedLinkService.deletedAssociatedData(sharedLink);
                 log.info("Completed ride assignment for event {}", sharedLink.getId());
             } catch (Exception e) {
                 log.error("Error assigning rides for event {}", sharedLink.getId(), e);

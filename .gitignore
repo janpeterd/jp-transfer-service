@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+/uploads/
+.env
+/src/main/resources/jwt_key.pem
+/src/main/resources/jwt_key.pem.pub
