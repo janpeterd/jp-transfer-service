@@ -1,0 +1,1 @@
+ALTER TABLE file_entity MODIFY COLUMN file_size BIGINT UNSIGNED;

@@ -1,13 +1,13 @@
 package com.janpeterdhalle.transfer.dtos;
 
+import java.io.Serializable;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
-
-import java.io.Serializable;
 
 /**
  * DTO for {@link com.janpeterdhalle.transfer.models.FileEntity}
@@ -20,7 +20,7 @@ public class FileEntityRequestDto implements Serializable {
     String fileType;
     @NotNull(message = "fileSize must not be null.")
     @Positive(message = "fileSize must be positive.")
-    Integer fileSize;
+    Long fileSize;
     @Size(message = "SHA1 checksum must be 40 long.", min = 40, max = 40)
     @NotBlank(message = "fileChecksum can not be blank.")
     String fileChecksum;

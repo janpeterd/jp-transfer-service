@@ -1,9 +1,9 @@
 package com.janpeterdhalle.transfer.dtos;
 
+import java.io.Serializable;
+
 import lombok.Builder;
 import lombok.Data;
-
-import java.io.Serializable;
 
 /**
  * DTO for {@link com.janpeterdhalle.transfer.models.FileEntity}
@@ -15,7 +15,7 @@ public class FileEntityResponseDto implements Serializable {
     String fileName;
     String filePath;
     String fileType;
-    Integer fileSize;
+    Long fileSize;
     String fileChecksum;
     Integer totalChunks;
 }

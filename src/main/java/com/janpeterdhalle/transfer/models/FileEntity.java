@@ -24,7 +24,7 @@ public class FileEntity {
     String fileType;
     @NotNull
     @Positive
-    Integer fileSize;
+    Long fileSize;
 
     @NotNull
     @Positive

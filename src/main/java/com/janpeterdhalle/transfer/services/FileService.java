@@ -30,9 +30,9 @@ public class FileService {
 
     public Path assembleFile(FileEntity file) {
         log.info("Assembling file {} (ID: {})", file.getFileName(), file.getId());
-        Path filePath = utils.getUploadPath(file).resolve("file_" + file.getId()); // Potentially use original filename
+        Path filePath = Utils.getUploadPath(file).resolve("file_" + file.getId()); // Potentially use original filename
                                                                                    // for clarity
-        Path chunksPath = utils.getUploadPath(file).resolve("chunks");
+        Path chunksPath = Utils.getUploadPath(file).resolve("chunks");
 
         try {
             List<Chunk> chunksFromDb = chunkRepository.findByFileOrderByChunkIndexAsc(file);
