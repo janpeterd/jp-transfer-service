@@ -1,15 +1,17 @@
 package com.janpeterdhalle.transfer.services;
 
+import java.util.Optional;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+
 import com.janpeterdhalle.transfer.models.Transfer;
 import com.janpeterdhalle.transfer.models.User;
 import com.janpeterdhalle.transfer.repositories.TransferRepository;
 import com.janpeterdhalle.transfer.repositories.UserRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @Transactional

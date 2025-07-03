@@ -1,8 +1,9 @@
 package com.janpeterdhalle.transfer.dtos;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder

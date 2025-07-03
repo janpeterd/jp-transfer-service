@@ -1,16 +1,17 @@
 package com.janpeterdhalle.transfer.controllers;
 
-import com.janpeterdhalle.transfer.dtos.TransferRequestDto;
-import com.janpeterdhalle.transfer.dtos.TransferResponseDto;
-import com.janpeterdhalle.transfer.services.SecurityService;
-import com.janpeterdhalle.transfer.services.TransferService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.janpeterdhalle.transfer.dtos.TransferRequestDto;
+import com.janpeterdhalle.transfer.dtos.TransferResponseDto;
+import com.janpeterdhalle.transfer.services.TransferService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -18,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransferController {
     private final TransferService transferService;
-    private final SecurityService securityService;
 
     @GetMapping
     public List<TransferResponseDto> getUserTransfers(Authentication authentication) {
@@ -36,10 +36,9 @@ public class TransferController {
         return transferService.getTransferByLinkUuid(linkUuid);
     }
 
-
     @PostMapping
     public TransferResponseDto handleStartTransfer(Authentication authentication,
-                                                   @RequestBody TransferRequestDto requestDto) {
+            @RequestBody TransferRequestDto requestDto) {
         log.info("Handling start transfer request: {}", requestDto);
         return transferService.start(authentication, requestDto);
     }
@@ -49,7 +48,6 @@ public class TransferController {
     public void deleteTransfer(Authentication authentication, @PathVariable Long id) {
         transferService.deleteTransferById(id);
     }
-
 
     @PostMapping("/{id}/finish")
     @PreAuthorize("#securityService.isOwnerOfTransfer(id, authentication)")

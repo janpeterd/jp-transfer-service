@@ -1,5 +1,10 @@
 package com.janpeterdhalle.transfer.controllers;
 
+import java.util.UUID;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
 import com.janpeterdhalle.transfer.dtos.UserResponseDto;
 import com.janpeterdhalle.transfer.models.AuthResponse;
 import com.janpeterdhalle.transfer.models.LoginCredentials;
@@ -8,13 +13,10 @@ import com.janpeterdhalle.transfer.models.User;
 import com.janpeterdhalle.transfer.services.AuthService;
 import com.janpeterdhalle.transfer.services.PasswordService;
 import com.janpeterdhalle.transfer.services.RefreshTokenService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -37,8 +39,8 @@ public class AuthController {
 
     @PostMapping("/change-password")
     public User handleResetPassword(
-        Authentication authentication,
-        @RequestBody PasswordResetCredentials passwordResetCredentials) {
+            Authentication authentication,
+            @RequestBody PasswordResetCredentials passwordResetCredentials) {
         return passwordService.resetPasswordMatches(authentication.getName(), passwordResetCredentials);
     }
 

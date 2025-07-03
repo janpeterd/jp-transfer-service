@@ -1,9 +1,10 @@
 package com.janpeterdhalle.transfer.services;
 
-import com.janpeterdhalle.transfer.models.Transfer;
-import com.janpeterdhalle.transfer.repositories.SharedLinkRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -11,16 +12,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.janpeterdhalle.transfer.models.Transfer;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class FileDownloadService {
-    private final SharedLinkRepository sharedLinkRepository;
 
     public ResponseEntity<Resource> downloadTransfer(Transfer transfer) {
         try {
@@ -52,8 +52,8 @@ public class FileDownloadService {
         }
 
         return ResponseEntity.ok()
-                             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                             .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                             .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 }

@@ -45,7 +45,6 @@ public class TransferService {
     private final SharedLinkService sharedLinkService;
     @Qualifier("fileEntityMapper")
     private final FileEntityMapper fileMapper;
-    private final Utils utils;
     private final FileRepository fileRepository;
     private final SharedLinkRepository sharedLinkRepository;
 
@@ -69,9 +68,8 @@ public class TransferService {
     }
 
     public Path assembleZip(Transfer transfer) {
-        Path zipPath = utils.getUploadPath(transfer).resolve("upload.zip");
-        Path tempZipPath = utils.getUploadPath(transfer).resolve("temp.zip");
-        boolean zipExists = Files.exists(zipPath);
+        Path zipPath = Utils.getUploadPath(transfer).resolve("upload.zip");
+        Path tempZipPath = Utils.getUploadPath(transfer).resolve("temp.zip");
         try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(tempZipPath))) {
             transfer.getFiles().forEach(file -> {
                 // 1. assemble file

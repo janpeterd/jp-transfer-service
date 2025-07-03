@@ -1,15 +1,17 @@
 package com.janpeterdhalle.transfer.services;
 
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.janpeterdhalle.transfer.exceptions.UserNotFoundException;
 import com.janpeterdhalle.transfer.models.LoginCredentials;
 import com.janpeterdhalle.transfer.models.PasswordResetCredentials;
 import com.janpeterdhalle.transfer.models.User;
 import com.janpeterdhalle.transfer.repositories.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -25,9 +27,9 @@ public class PasswordService {
         }
         if (passwordEncoder.matches(credentials.getPassword(), user.getPassword())) {
             LoginCredentials resetCredentials = LoginCredentials.builder()
-                                                                .email(email)
-                                                                .password(credentials.getNewPassword())
-                                                                .build();
+                    .email(email)
+                    .password(credentials.getNewPassword())
+                    .build();
             return resetPassword(resetCredentials);
         }
         throw new BadCredentialsException("Wrong password");

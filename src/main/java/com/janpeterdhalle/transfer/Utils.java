@@ -16,7 +16,6 @@ import com.janpeterdhalle.transfer.models.FileEntity;
 import com.janpeterdhalle.transfer.models.Transfer;
 import com.janpeterdhalle.transfer.models.User;
 
-import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -148,7 +147,11 @@ public class Utils {
             }
         }
         byte[] digest = md.digest();
-        return DatatypeConverter.printHexBinary(digest).toLowerCase(); // Or your preferred hex converter
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : digest) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
     }
 
 }

@@ -1,10 +1,11 @@
 package com.janpeterdhalle.transfer.dtos;
 
+import java.io.Serializable;
+
 import com.janpeterdhalle.transfer.models.Role;
+
 import lombok.Builder;
 import lombok.Data;
-
-import java.io.Serializable;
 
 /**
  * DTO for {@link com.janpeterdhalle.transfer.models.User}

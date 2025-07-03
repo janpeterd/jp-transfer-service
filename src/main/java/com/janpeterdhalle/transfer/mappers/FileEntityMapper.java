@@ -1,9 +1,10 @@
 package com.janpeterdhalle.transfer.mappers;
 
+import org.mapstruct.*;
+
 import com.janpeterdhalle.transfer.dtos.FileEntityRequestDto;
 import com.janpeterdhalle.transfer.dtos.FileEntityResponseDto;
 import com.janpeterdhalle.transfer.models.FileEntity;
-import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface FileEntityMapper {
@@ -15,6 +16,6 @@ public interface FileEntityMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     FileEntity partialUpdate(
-        FileEntityResponseDto fileEntityResponseDto,
-        @MappingTarget FileEntity fileEntity);
+            FileEntityResponseDto fileEntityResponseDto,
+            @MappingTarget FileEntity fileEntity);
 }

@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class SharedLinkService {
     private final SharedLinkRepository sharedLinkRepository;
-    private final Utils utils;
     private final TransferRepository transferRepository;
 
     public void create(Transfer transfer) {
@@ -28,7 +27,7 @@ public class SharedLinkService {
         SharedLink link = sharedLinkRepository.save(SharedLink.builder()
                 .user(transfer.getUser())
                 .maxDownloads(100)
-                .url(utils.getUploadPath(transfer).toString())
+                .url(Utils.getUploadPath(transfer).toString())
                 .uuid(uuid.toString())
                 .downloadLink("/download/" + uuid)
                 .transfer(transfer)
@@ -39,6 +38,6 @@ public class SharedLinkService {
     }
 
     public void deletedAssociatedData(SharedLink sharedLink) {
-        Utils.deleteDirectory(new File(utils.getUploadPath(sharedLink.getTransfer()).toUri()));
+        Utils.deleteDirectory(new File(Utils.getUploadPath(sharedLink.getTransfer()).toUri()));
     }
 }

@@ -1,11 +1,19 @@
 package com.janpeterdhalle.transfer.config;
 
-import com.janpeterdhalle.transfer.services.UserDetailsService;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.proc.SecurityContext;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,19 +40,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import com.janpeterdhalle.transfer.services.UserDetailsService;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.proc.SecurityContext;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -63,37 +65,37 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable)
-                   .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                   .authorizeHttpRequests(
-                       (authorize) -> authorize
-                           .requestMatchers(HttpMethod.GET, "/").permitAll()
-                           .requestMatchers(HttpMethod.GET, "/explorer/**").permitAll()
-                           .requestMatchers(HttpMethod.GET, "/download").permitAll()
-                           .requestMatchers(HttpMethod.GET, "/download/**").permitAll()
-                           .requestMatchers("/api/transfer/uuid/*").permitAll()
-                           .requestMatchers("/auth/**").permitAll()
-                           .requestMatchers(
-                               "/auth/refresh-token",
-                               "/auth/register",
-                               "/auth/login",
-                               "/auth/login",
-                               "/logout")
-                           .permitAll()
-                           .requestMatchers("/swagger-ui/**").permitAll()
-                           .requestMatchers("/v3/**").permitAll()
-                           .requestMatchers("/auth/set-password").hasAuthority("ADMIN")
-                           .requestMatchers(HttpMethod.POST, "/users").hasAuthority("ADMIN")
-                           .requestMatchers(HttpMethod.PUT, "/users").hasAuthority("ADMIN")
-                           .requestMatchers(HttpMethod.DELETE, "/users").hasAuthority("ADMIN")
-                           .anyRequest().authenticated()) // All other requests require authentication
-                   .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                   .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                   .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                   .logout(logout -> logout.invalidateHttpSession(true)
-                                           .deleteCookies("JSESSIONID")
-                                           .permitAll())
-                   .userDetailsService(userDetailsService)
-                   .build();
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(
+                        (authorize) -> authorize
+                                .requestMatchers(HttpMethod.GET, "/").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/explorer/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/download").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/download/**").permitAll()
+                                .requestMatchers("/api/transfer/uuid/*").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers(
+                                        "/auth/refresh-token",
+                                        "/auth/register",
+                                        "/auth/login",
+                                        "/auth/login",
+                                        "/logout")
+                                .permitAll()
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .requestMatchers("/v3/**").permitAll()
+                                .requestMatchers("/auth/set-password").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/users").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/users").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/users").hasAuthority("ADMIN")
+                                .anyRequest().authenticated()) // All other requests require authentication
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .logout(logout -> logout.invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll())
+                .userDetailsService(userDetailsService)
+                .build();
     }
 
     @Bean
@@ -102,7 +104,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(corsUrls);
 
         configuration.setAllowedMethods(
-            Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
@@ -124,9 +126,9 @@ public class SecurityConfig {
     public RSAPublicKey rsaPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         String cleanedKey = null;
         cleanedKey = Files.readString(ResourceUtils.getFile(publicKeyPath).toPath(), StandardCharsets.UTF_8)
-                          .replace("-----BEGIN PUBLIC KEY-----", "")
-                          .replace("-----END PUBLIC KEY-----", "")
-                          .replaceAll("\\s+", "");
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s+", "");
 
         byte[] decoded = Base64.getDecoder().decode(cleanedKey);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
@@ -138,9 +140,9 @@ public class SecurityConfig {
     public RSAPrivateKey rsaPrivateKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         String privateKeyPEM = null;
         privateKeyPEM = Files.readString(ResourceUtils.getFile(privateKeyPath).toPath(), StandardCharsets.UTF_8)
-                             .replace("-----BEGIN PRIVATE KEY-----", "")
-                             .replace("-----END PRIVATE KEY-----", "")
-                             .replaceAll("\\s+", "");
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s+", "");
 
         byte[] encoded = Base64.getMimeDecoder().decode(privateKeyPEM);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
@@ -159,7 +161,6 @@ public class SecurityConfig {
         ImmutableJWKSet<SecurityContext> keys = new ImmutableJWKSet<>(new JWKSet(key));
         return new NimbusJwtEncoder(keys);
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
