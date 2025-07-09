@@ -138,9 +138,9 @@ public class TransferService {
                 && !Constants.forbiddenDeleteDirs.contains(
                         dirToDelete.getAbsolutePath())) {
             Utils.deleteDirectory(dirToDelete);
-            transferRepository.delete(transfer);
         } else {
             log.error("Delete transfer failed invalid file/dir: {}", dirToDelete.getAbsolutePath());
         }
+        transferRepository.delete(transfer);
     }
 }
