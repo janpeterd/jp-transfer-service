@@ -133,8 +133,6 @@ public class TransferService {
 
     public void deleteTransferById(Long id) {
         Transfer transfer = transferRepository.findById(id).orElseThrow(TransferNotFoundException::new);
-        System.out.println("new File(transfer.getUploadPath()).getParentFile(): "
-                + new File(transfer.getUploadPath()).getParentFile());
         File dirToDelete = new File(Utils.getUploadPath(transfer).toString());
         if (StringUtils.hasLength(dirToDelete.getAbsolutePath()) && dirToDelete.exists() && dirToDelete.isDirectory()
                 && !Constants.forbiddenDeleteDirs.contains(
