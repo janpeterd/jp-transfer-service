@@ -141,6 +141,7 @@ public class TransferService {
         } else {
             log.error("Delete transfer failed invalid file/dir: {}", dirToDelete.getAbsolutePath());
         }
-        transferRepository.delete(transfer);
+        transfer.setActive(false);
+        transferRepository.save(transfer);
     }
 }
