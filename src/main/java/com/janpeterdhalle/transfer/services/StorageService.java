@@ -33,7 +33,7 @@ public class StorageService {
     }
 
     public Long getUserStorageInfo(Authentication authentication) {
-        User user = userService.getLoggedInUser(authentication);
-        return fileRepository.getFilesizeByUserAndUploadedTrue(user);
+        User user = userService.getMe(authentication).orElseThrow();
+        return fileRepository.getFilesizeByUserIdAndUploadedTrue(user.getId());
     }
 }

@@ -50,7 +50,7 @@ public class TransferService {
 
     public TransferResponseDto start(Authentication authentication, TransferRequestDto transferRequestDto) {
         Transfer transfer = transferMapper.toEntity(transferRequestDto);
-        transfer.setUser(userService.getLoggedInUser(authentication));
+        transfer.setUser(userService.getMe(authentication).orElseThrow());
         transfer.setActive(true);
         transfer = transferRepository.save(transfer);
 
@@ -59,7 +59,7 @@ public class TransferService {
             log.info("File request {}", fileRequest);
             FileEntity file = fileMapper.toEntity(fileRequest);
             file.setTransfer(finalTransfer);
-            file.setUser(userService.getLoggedInUser(authentication));
+            file.setUser(userService.getMe(authentication).orElseThrow());
             finalTransfer.getFiles().add(file);
             fileRepository.save(file);
         });
@@ -125,7 +125,7 @@ public class TransferService {
     }
 
     public List<TransferResponseDto> getUserTransfers(Authentication authentication) {
-        return transferRepository.findAllByUserAndActiveTrue(userService.getLoggedInUser(authentication))
+        return transferRepository.findAllByUserAndActiveTrue(userService.getMe(authentication).orElseThrow())
                 .stream()
                 .map(transferMapper::toDto)
                 .toList();

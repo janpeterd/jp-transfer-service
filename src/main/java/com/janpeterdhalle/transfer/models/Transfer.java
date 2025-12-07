@@ -29,6 +29,7 @@ public class Transfer {
     @NotBlank
     String uploadPath;
 
+    // TODO: get from authentik?
     @ManyToOne
     User user;
 

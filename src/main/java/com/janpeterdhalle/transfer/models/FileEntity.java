@@ -42,6 +42,7 @@ public class FileEntity {
 
     @ManyToOne
     User user;
+    // String userId;
 
     @NotNull
     @Positive

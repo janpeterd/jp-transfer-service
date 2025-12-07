@@ -3,7 +3,6 @@ package com.janpeterdhalle.transfer.models;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.*;
@@ -46,7 +45,6 @@ public class SharedLink {
     @Builder.Default
     private Long createdAt = System.currentTimeMillis();
 
-    @UpdateTimestamp
     @Column(nullable = false)
     @Builder.Default
     private Long updatedAt = System.currentTimeMillis();
@@ -62,4 +60,17 @@ public class SharedLink {
     @Builder.Default
     private Integer maxDownloads = 100;
 
+    @PrePersist
+    public void onCreate() {
+        long now = System.currentTimeMillis();
+        if (createdAt == null) {
+            createdAt = now;
+        }
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = System.currentTimeMillis();
+    }
 }

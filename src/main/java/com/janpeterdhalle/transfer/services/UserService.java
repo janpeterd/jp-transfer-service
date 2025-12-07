@@ -1,112 +1,56 @@
 package com.janpeterdhalle.transfer.services;
 
-import java.io.File;
-import java.util.List;
+import java.time.Instant;
+import java.util.Optional;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import com.janpeterdhalle.transfer.Constants;
-import com.janpeterdhalle.transfer.UserRequestDto;
-import com.janpeterdhalle.transfer.Utils;
-import com.janpeterdhalle.transfer.dtos.UserResponseDto;
-import com.janpeterdhalle.transfer.exceptions.FileEntityNotFoundException;
-import com.janpeterdhalle.transfer.exceptions.UserNotFoundException;
-import com.janpeterdhalle.transfer.mappers.UserMapper;
-import com.janpeterdhalle.transfer.models.Role;
 import com.janpeterdhalle.transfer.models.User;
 import com.janpeterdhalle.transfer.repositories.UserRepository;
 
-import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
+@Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
-
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
-    private final Environment environment;
-    @Value("${admin.username}")
-    private String adminUsername;
-    @Value("${admin.email}")
-    private String adminEmail;
-    @Value("${admin.password}")
-    private String adminPassword;
 
-    @PostConstruct
-    public void init() {
-        if (ArrayUtils.contains(environment.getActiveProfiles(), "dev")) {
-            if (userRepository.findByEmail("user@example.com").isEmpty()) {
-                User user = new User();
-                user.setEmail("user@example.com");
-                user.setPassword(passwordEncoder.encode("user"));
-                user.setActive(true);
-                user.setRole(Role.USER);
-                userRepository.save(user);
-            }
+    @Cacheable(value = "userSync", key = "#subject + ':' + #issuedAt.toEpochMilli()")
+    public boolean syncUserOnce(String subject,
+            String username,
+            String email,
+            Instant issuedAt) {
+
+        User user = userRepository.findBySubject(subject)
+                .orElseGet(() -> User.builder()
+                        .subject(subject)
+                        .build());
+
+        user.setUsername(username);
+        user.setEmail(email);
+
+        userRepository.save(user); // Save acts as UPSERT
+
+        return true;
+    }
+
+    public Optional<User> getMe(Authentication auth) {
+        if (auth instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            return userRepository.findBySubject(jwt.getSubject());
         }
-        if (userRepository.findByEmail(adminEmail).isEmpty()) {
-            User user = new User();
-            user.setEmail(adminEmail);
-            user.setUsername(adminUsername);
-            user.setActive(true);
-            user.setPassword(passwordEncoder.encode(adminPassword));
-            user.setRole(Role.ADMIN);
-            userRepository.save(user);
-        }
+        return Optional.empty();
     }
 
-    public User getLoggedInUser(Authentication authentication) {
-        return userRepository.findByEmail(authentication.getName()).orElseThrow(FileEntityNotFoundException::new);
-    }
-
-    public List<UserResponseDto> getUsers() {
-        return userRepository.findAllByActiveTrue().stream().map(userMapper::toDto).toList();
-    }
-
-    public UserResponseDto getUser(Long id) {
-        return userMapper.toDto(userRepository.findById(id).orElseThrow(FileEntityNotFoundException::new));
-    }
-
-    public UserResponseDto updateUserById(Long id, UserRequestDto userRequestDto) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        userMapper.partialUpdate(userRequestDto, user);
-        return userMapper.toDto(userRepository.save(user));
-    }
-
-    public UserResponseDto updateUserPasswordById(Long id, String password) {
-        if (!StringUtils.hasLength(password))
-            throw new BadCredentialsException("Invalid password");
-        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        user.setPassword(passwordEncoder.encode(password));
-        return userMapper.toDto(userRepository.save(user));
-    }
-
-    public UserResponseDto disableUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        File dirToDelete = new File(Utils.getUploadPath(user).toString());
-        if (StringUtils.hasLength(dirToDelete.getAbsolutePath()) && dirToDelete.exists() && dirToDelete.isDirectory()
-                && !Constants.forbiddenDeleteDirs.contains(
-                        dirToDelete.getAbsolutePath())) {
-            Utils.deleteDirectory(dirToDelete);
-        } else {
-            log.error("Delete transfer failed invalid file/dir: {}", dirToDelete.getAbsolutePath());
-        }
-        user.setActive(false);
-        return userMapper.toDto(userRepository.save(user));
-    }
-
-    public UserResponseDto getCurrent(Authentication authentication) {
-        return userMapper.toDto(getLoggedInUser(authentication));
+    public Optional<User> findBySubject(String subject) {
+        return userRepository.findBySubject(subject);
     }
 }
